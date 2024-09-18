@@ -1,34 +1,30 @@
 package com.example.sharedpreferences
 
-import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+import com.example.sharedpreferences.viewmodel.CounterViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var counterTextView: TextView
+
+    private val counterViewModel: CounterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Obtener referencia al TextView
         counterTextView = findViewById(R.id.counterTextView)
 
-        // Obtener el valor del contador desde SharedPreferences
-        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val counter = sharedPreferences.getInt("counter", 0)
+        counterViewModel.counter.observe(this, Observer { counter ->
+            counterTextView.text = counter.toString()
+        })
 
-        // Incrementar el valor
-        val newCounterValue = counter + 1
-
-        // Mostrar el valor actualizado en el TextView
-        counterTextView.text = newCounterValue.toString()
-
-        // Guardar el nuevo valor en SharedPreferences
-        val editor = sharedPreferences.edit()
-        editor.putInt("counter", newCounterValue)
-        editor.apply()
+        counterViewModel.incrementCounter()
     }
 }
